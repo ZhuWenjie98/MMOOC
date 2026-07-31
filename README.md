@@ -1,6 +1,6 @@
 # MMOOC Benchmark
 
-[🌐 Homepage]([YOUR_PROJECT_PAGE_URL](https://zhuwenjie98.github.io/MMOOC-project-page/)) | [🏆 Leaderboard](YOUR_LEADERBOARD_URL) | [🤗 Dataset](https://huggingface.co/datasets/ZhuWenjie98/MMOOC) | [📖 arXiv](https://arxiv.org/abs/2607.27637) | [💻 Code](YOUR_CODE_URL)
+[🌐 Homepage]([[YOUR_PROJECT_PAGE_URL](https://zhuwenjie98.github.io/MMOOC-project-page/)]()) | [🏆 Leaderboard](YOUR_LEADERBOARD_URL) | [🤗 Dataset](https://huggingface.co/datasets/ZhuWenjie98/MMOOC) | [📖 arXiv](https://arxiv.org/abs/2607.27637) | [💻 Code](YOUR_CODE_URL)
 
 This repository contains the dataset and evaluation code for the paper **“MMOOC: A Comprehensive Benchmark for Out-of-Context Evaluation in Multimodal Large Language Models.”**
 
