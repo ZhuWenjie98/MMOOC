@@ -1,0 +1,53 @@
+dataset_path: ZhuWenjie98/MMOOC
+dataset_kwargs:
+  data_files: data/ic.parquet
+  token: true
+task: mmooc_ic
+test_split: train
+process_docs: !function utils.mmooc_ic_process_docs
+output_type: generate_until
+doc_to_visual: !function utils.mmooc_ic_doc_to_visual
+doc_to_text: !function utils.mmooc_ic_doc_to_text
+doc_to_target: !function utils.mmooc_ic_doc_to_target
+generation_kwargs:
+  max_new_tokens: 512
+  temperature: 0
+  top_p: 1.0
+  num_beams: 1
+  do_sample: false
+process_results: !function utils.mmooc_ic_process_results
+metric_list:
+  - metric: mmooc_ic_answer_score
+    aggregation: !function utils.mmooc_ic_aggregate_answer_score
+    higher_is_better: true
+  - metric: mmooc_ic_reasoning_score
+    aggregation: !function utils.mmooc_ic_aggregate_semantic_score
+    higher_is_better: true
+  - metric: mmooc_ic_accuracy
+    aggregation: !function utils.mmooc_ic_aggregate_accuracy
+    higher_is_better: true
+lmms_eval_specific_kwargs:
+  default:
+    # ===== Filter Configuration =====
+    # category: coarse_perception | fine_grained_perception | instance_reasoning | logical_reasoning | math | science_and_technology | "" (all)
+    category: ""
+    # question_type: mcq | yesno | vqa | "" (all)
+    question_type: ""
+    # ===============================
+    pre_prompt: ""
+    post_prompt: "Answer:"
+    #post_prompt: "The following question is likely unanswerable from the image. Answer:"
+    #post_prompt: "Please think step by step before answering. Answer:"
+  qwen_vl:
+    pre_prompt: ""
+    post_prompt: " Answer:"
+    #post_prompt: "The following question is likely unanswerable from the image. Answer:"
+    #post_prompt: "Please think step by step before answering. Answer:"
+  otterhd:
+    pre_prompt: ""
+    post_prompt: " Answer:"
+  xcomposer2_4khd:
+    pre_prompt: "[UNUSED_TOKEN_146]user\n"
+    post_prompt: " Answer this question briefly[UNUSED_TOKEN_145]\n[UNUSED_TOKEN_146]assistant\n"
+metadata:
+  - version: 0.0

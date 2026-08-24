@@ -1,0 +1,27 @@
+dataset_path: arrow
+dataset_kwargs:
+  data_files: /data1/wenjie/huggingface/datasets/MMStar_mismatch/data-00000-of-00001.arrow
+task: mmstar_mismacth
+test_split: train
+process_docs: !function utils.mmstar_mismacth_process_docs
+output_type: generate_until
+doc_to_visual: !function utils.mmstar_mismacth_doc_to_visual
+doc_to_text: !function utils.mmstar_mismacth_doc_to_text
+doc_to_target: !function utils.mmstar_mismacth_doc_to_target
+generation_kwargs:
+  max_new_tokens: 32
+  temperature: 0
+  top_p: 1.0
+  num_beams: 1
+  do_sample: false
+process_results: !function utils.mmstar_mismacth_process_results
+metric_list:
+  - metric: mmstar_mismacth_refusal_accuracy
+    aggregation: !function utils.mmstar_mismacth_aggregate_refusal_accuracy
+    higher_is_better: true
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "\nYou must answer with exactly one letter from A, B, C, D, or E. Do not output any other text.\nAnswer:"
+metadata:
+  - version: 0.0

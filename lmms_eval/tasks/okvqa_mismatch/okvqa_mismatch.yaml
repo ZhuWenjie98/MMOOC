@@ -1,0 +1,32 @@
+dataset_path: arrow
+dataset_kwargs:
+  data_files:
+    - /data1/wenjie/huggingface/datasets/ok_vqa_mismatch/data-00000-of-00004.arrow
+    - /data1/wenjie/huggingface/datasets/ok_vqa_mismatch/data-00001-of-00004.arrow
+    - /data1/wenjie/huggingface/datasets/ok_vqa_mismatch/data-00002-of-00004.arrow
+    - /data1/wenjie/huggingface/datasets/ok_vqa_mismatch/data-00003-of-00004.arrow
+task: okvqa_mismatch
+test_split: train
+output_type: generate_until
+doc_to_visual: !function utils.okvqa_mismatch_doc_to_visual
+doc_to_text: !function utils.okvqa_mismatch_doc_to_text
+doc_to_target: !function utils.okvqa_mismatch_doc_to_target
+generation_kwargs:
+  max_new_tokens: 128
+  temperature: 0
+  top_p: 1.0
+  num_beams: 1
+  do_sample: false
+process_results: !function utils.okvqa_mismatch_process_results
+# Single LLM-judged metric. Each row is classified into A/B/C; correct_refusal=1
+# iff verdict in {B (explicit refusal), C (mismatch-identified)}.
+metric_list:
+  - metric: okvqa_mismatch_refusal_accuracy
+    aggregation: !function utils.okvqa_mismatch_aggregate_refusal_accuracy
+    higher_is_better: true
+lmms_eval_specific_kwargs:
+  default:
+    pre_prompt: ""
+    post_prompt: "\nIf the image does not match the question, say you cannot answer based on the image. Otherwise, answer briefly:"
+metadata:
+  - version: 0.2
