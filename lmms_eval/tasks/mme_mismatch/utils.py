@@ -1,4 +1,3 @@
-
 import json
 import os
 import re
@@ -7,9 +6,8 @@ import urllib.request
 from collections import defaultdict
 from io import BytesIO
 
-from PIL import Image
 from loguru import logger as eval_logger
-
+from PIL import Image
 
 STRONG_REFUSAL_PATTERNS = [
     r"\bi can\s*['’`]?t\b",
@@ -42,13 +40,18 @@ WEAK_REFUSAL_PATTERNS = [
 ]
 
 CHINESE_REFUSAL_PATTERNS = [
-    r"无法", r"不能", r"不可见", r"不匹配", r"无关", r"看不到", r"没有", r"缺席",
+    r"无法",
+    r"不能",
+    r"不可见",
+    r"不匹配",
+    r"无关",
+    r"看不到",
+    r"没有",
+    r"缺席",
 ]
 
 STRONG_REGEX = re.compile("|".join(STRONG_REFUSAL_PATTERNS), re.IGNORECASE)
-WEAK_REGEX = re.compile(
-    "|".join(WEAK_REFUSAL_PATTERNS + CHINESE_REFUSAL_PATTERNS), re.IGNORECASE
-)
+WEAK_REGEX = re.compile("|".join(WEAK_REFUSAL_PATTERNS + CHINESE_REFUSAL_PATTERNS), re.IGNORECASE)
 
 
 def mme_mismatch_process_docs(dataset):
@@ -82,14 +85,8 @@ def mme_mismatch_doc_to_target(doc):
 
 def _get_judge_config():
     return {
-        "api_url": os.environ.get(
-            "MME_JUDGE_API_URL", "https://api5.xhub.chat/v1/chat/completions"
-        ),
-        "api_key": (
-            os.environ.get("MME_JUDGE_API_KEY")
-            or os.environ.get("MMOOC_JUDGE_API_KEY")
-            or os.environ.get("OPENAI_API_KEY", "")
-        ),
+        "api_url": os.environ.get("MME_JUDGE_API_URL", "https://api5.xhub.chat/v1/chat/completions"),
+        "api_key": (os.environ.get("MME_JUDGE_API_KEY") or os.environ.get("MMOOC_JUDGE_API_KEY") or os.environ.get("OPENAI_API_KEY", "")),
         "model": os.environ.get("MME_JUDGE_MODEL", "gpt-5.6-luna"),
         "timeout": int(os.environ.get("MME_JUDGE_TIMEOUT", "60")),
     }
@@ -104,12 +101,12 @@ def _llm_judge_refusal(question, prediction):
         "Classify the model's response into exactly ONE of these three categories:\n"
         "  0 = DIRECT_ANSWER: model answered the question directly (yes/no or a factual "
         "answer), without acknowledging that the image and question are mismatched.\n"
-        "  1 = REFUSED: model refused to answer (e.g. \"I cannot answer based on the "
-        "image\", \"I am unable to determine\", \"the answer cannot be determined "
-        "from the image\").\n"
+        '  1 = REFUSED: model refused to answer (e.g. "I cannot answer based on the '
+        'image", "I am unable to determine", "the answer cannot be determined '
+        'from the image").\n'
         "  2 = MISMATCH_IDENTIFIED: model pointed out the image-question mismatch (e.g. "
-        "\"the image does not show what the question asks about\", \"this question "
-        "does not match the image\", \"the image is unrelated to the question\").\n\n"
+        '"the image does not show what the question asks about", "this question '
+        'does not match the image", "the image is unrelated to the question").\n\n'
         "Question: " + question + "\n"
         "Model's response: " + prediction + "\n\n"
         "Reply with ONLY a single JSON object on one line, exactly:\n"
@@ -137,9 +134,7 @@ def _llm_judge_refusal(question, prediction):
             data = json.loads(r.read().decode())
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         if isinstance(content, list):
-            content = "".join(
-                b.get("text", "") if isinstance(b, dict) else str(b) for b in content
-            )
+            content = "".join(b.get("text", "") if isinstance(b, dict) else str(b) for b in content)
         match = re.search(r"\{[^{}]*\"verdict\"[^{}]*\}", content)
         if match:
             obj = json.loads(match.group(0))
@@ -196,18 +191,6 @@ def mme_mismatch_aggregate_refusal_accuracy(results):
         cat = r.get("category", "unknown")
         by_cat[cat][0] += int(r["refused"])
         by_cat[cat][1] += 1
-    cat_str = ", ".join(
-        c + "=" + str(round(n / t * 100, 2)) + "%(" + str(int(n)) + "/" + str(t) + ")"
-        for c, (n, t) in sorted(by_cat.items())
-    )
-    eval_logger.info(
-        "MME Mismatch Refusal Accuracy: "
-        + str(round(accuracy, 2))
-        + "% ("
-        + str(int(refused))
-        + "/"
-        + str(total)
-        + ") | per-category: "
-        + cat_str
-    )
+    cat_str = ", ".join(c + "=" + str(round(n / t * 100, 2)) + "%(" + str(int(n)) + "/" + str(t) + ")" for c, (n, t) in sorted(by_cat.items()))
+    eval_logger.info("MME Mismatch Refusal Accuracy: " + str(round(accuracy, 2)) + "% (" + str(int(refused)) + "/" + str(total) + ") | per-category: " + cat_str)
     return accuracy

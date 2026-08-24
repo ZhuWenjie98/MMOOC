@@ -6,8 +6,8 @@ import urllib.request
 from collections import defaultdict
 from io import BytesIO
 
-from PIL import Image
 from loguru import logger as eval_logger
+from PIL import Image
 
 
 def okvqa_mismatch_doc_to_visual(doc):
@@ -44,14 +44,8 @@ def okvqa_mismatch_doc_to_target(doc):
 
 def _get_judge_config():
     return {
-        "api_url": os.environ.get(
-            "OKVQA_JUDGE_API_URL", "https://api5.xhub.chat/v1/chat/completions"
-        ),
-        "api_key": (
-            os.environ.get("OKVQA_JUDGE_API_KEY")
-            or os.environ.get("MMOOC_JUDGE_API_KEY")
-            or os.environ.get("OPENAI_API_KEY", "")
-        ),
+        "api_url": os.environ.get("OKVQA_JUDGE_API_URL", "https://api5.xhub.chat/v1/chat/completions"),
+        "api_key": (os.environ.get("OKVQA_JUDGE_API_KEY") or os.environ.get("MMOOC_JUDGE_API_KEY") or os.environ.get("OPENAI_API_KEY", "")),
         "model": os.environ.get("OKVQA_JUDGE_MODEL", "gpt-5.6-luna"),
         "timeout": int(os.environ.get("OKVQA_JUDGE_TIMEOUT", "60")),
     }
@@ -70,9 +64,7 @@ def _llm_call_judge(payload, cfg):
         data = json.loads(r.read().decode())
     content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
     if isinstance(content, list):
-        content = "".join(
-            b.get("text", "") if isinstance(b, dict) else str(b) for b in content
-        )
+        content = "".join(b.get("text", "") if isinstance(b, dict) else str(b) for b in content)
     match = re.search(r"\{[^{}]*\}", content)
     if not match:
         raise ValueError(f"No JSON in judge response: {content[:200]}")
@@ -94,13 +86,13 @@ def _llm_judge_refusal(question, prediction):
         "factual answer), without acknowledging that image and question are "
         "mismatched.\n"
         "  B = REFUSED (explicit refusal): model refused to answer in clear terms, "
-        "for example \"I can't answer this question\", \"I am unable to determine\", "
-        "\"the answer cannot be determined from the image\". This is an explicit "
+        'for example "I can\'t answer this question", "I am unable to determine", '
+        '"the answer cannot be determined from the image". This is an explicit '
         "refusal that does NOT point out the image-question mismatch.\n"
         "  C = MISMATCH (implicit refusal): model pointed out the image-question "
-        "mismatch (e.g. \"the image does not show what the question asks about\", "
-        "\"this question does not match the image\", \"the image is unrelated to the "
-        "question\"). This is an implicit refusal via mismatch identification.\n\n"
+        'mismatch (e.g. "the image does not show what the question asks about", '
+        '"this question does not match the image", "the image is unrelated to the '
+        'question"). This is an implicit refusal via mismatch identification.\n\n'
         "Question: " + question + "\n"
         "Model's response: " + prediction + "\n\n"
         "Reply with ONLY a single JSON object on one line, exactly:\n"
@@ -185,19 +177,29 @@ def okvqa_mismatch_aggregate_refusal_accuracy(rows):
     pct = s / total * 100.0
 
     def _fmt(d):
-        return ", ".join(
-            k + "=" + str(round(n / t * 100, 2)) + "%(" + str(int(n)) + "/" + str(t) + ")"
-            for k, (n, t) in sorted(d.items())
-        )
+        return ", ".join(k + "=" + str(round(n / t * 100, 2)) + "%(" + str(int(n)) + "/" + str(t) + ")" for k, (n, t) in sorted(d.items()))
 
     eval_logger.info(
-        "OK-VQA Mismatch — refusal_accuracy = " + str(round(pct, 2))
-        + "% (" + str(int(s)) + "/" + str(total) + ")"
-        + " | verdict distribution: A(answered)=" + str(by_verdict["A"])
-        + ", B(explicit_refusal)=" + str(by_verdict["B"])
-        + ", C(mismatch_identified)=" + str(by_verdict["C"])
-        + " | empty=" + str(n_empty) + ", judge_failed=" + str(n_judge_fail)
-        + " | per-question_type: " + _fmt(by_qtype)
-        + " | per-answer_type: " + _fmt(by_atype)
+        "OK-VQA Mismatch — refusal_accuracy = "
+        + str(round(pct, 2))
+        + "% ("
+        + str(int(s))
+        + "/"
+        + str(total)
+        + ")"
+        + " | verdict distribution: A(answered)="
+        + str(by_verdict["A"])
+        + ", B(explicit_refusal)="
+        + str(by_verdict["B"])
+        + ", C(mismatch_identified)="
+        + str(by_verdict["C"])
+        + " | empty="
+        + str(n_empty)
+        + ", judge_failed="
+        + str(n_judge_fail)
+        + " | per-question_type: "
+        + _fmt(by_qtype)
+        + " | per-answer_type: "
+        + _fmt(by_atype)
     )
     return {"score": pct, "count": total, "sum": s, "verdict_counts": by_verdict}

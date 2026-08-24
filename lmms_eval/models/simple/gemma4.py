@@ -7,7 +7,7 @@ from accelerate import Accelerator, DistributedType
 from loguru import logger as eval_logger
 from PIL import Image
 from tqdm import tqdm
-from transformers import AutoProcessor, AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoProcessor
 
 from lmms_eval import utils
 from lmms_eval.api.instance import Instance
@@ -29,6 +29,7 @@ def _load_gemma4_model(pretrained: str, model_kwargs: dict):
     # Try AutoModelForMultimodalLM first (supports text + images/audio)
     try:
         from transformers import AutoModelForMultimodalLM
+
         model = AutoModelForMultimodalLM.from_pretrained(pretrained, **model_kwargs)
         eval_logger.info(f"Loaded {pretrained} as AutoModelForMultimodalLM")
         return model, "multimodal"

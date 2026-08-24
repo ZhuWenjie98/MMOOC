@@ -2,10 +2,8 @@ import re
 from collections import Counter
 from io import BytesIO
 
-from PIL import Image
-
 from loguru import logger as eval_logger
-
+from PIL import Image
 
 REFUSAL_OPTION = "E"
 ANSWER_PATTERN = re.compile(
@@ -88,7 +86,5 @@ def mmstar_mismacth_aggregate_refusal_accuracy(results):
     total = len(results)
     correct = sum(r["correct"] for r in results)
     accuracy = (correct / total) * 100.0
-    eval_logger.info(
-        f"MMStar Mismatch Refusal Accuracy: {accuracy:.2f}% ({correct:.0f}/{total})"
-    )
+    eval_logger.info(f"MMStar Mismatch Refusal Accuracy: {accuracy:.2f}% ({correct:.0f}/{total})")
     return accuracy

@@ -22,8 +22,9 @@ from lmms_eval.api.registry import register_model
 
 def _patch_transformers_for_internvl():
     """Patch transformers to handle InternVLChatModel missing all_tied_weights_keys."""
-    import transformers.modeling_utils as modeling_utils
     import collections
+
+    import transformers.modeling_utils as modeling_utils
 
     _original_get_total_byte_count = modeling_utils.get_total_byte_count
 

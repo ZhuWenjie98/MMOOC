@@ -39,6 +39,7 @@ def get_model_name_from_path(path: str) -> str:
     """Fallback function to extract model name from path when llava import fails."""
     return path.strip("/").split("/")[-1]
 
+
 # inference implementation for attention, can be "sdpa", "eager", "flash_attention_2". Seems FA2 is not effective during inference: https://discuss.huggingface.co/t/flash-attention-has-no-effect-on-inference/73453/5
 # if is_flash_attn_2_available:
 #     best_fit_attn_implementation = "flash_attention_2" # flash_attn has a bug that says: ERROR Error query and key must have the same dtype in generating
